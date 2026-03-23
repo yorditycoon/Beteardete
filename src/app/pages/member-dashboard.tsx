@@ -11,15 +11,24 @@ import {
   Calendar, 
   MessageSquare,
   TrendingUp,
-  Award
+  Award,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import { dailyVerse, mockBibleReadings, mockQuizzes, mockEvents, getStatistics } from "../lib/mock-data";
+import { dailyVerse, mockBibleReadings, mockQuizzes, mockEvents, getStatistics, getWeeklyProgressForUser } from "../lib/mock-data";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { toast } from "sonner";
 
 export function MemberDashboard() {
   const [question, setQuestion] = useState("");
+  const [selectedWeek, setSelectedWeek] = useState(3); // Current week is 3
   const stats = getStatistics();
+  
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const userId = currentUser.id || "m1a";
+
+  // Get weekly progress for selected week
+  const weekProgress = getWeeklyProgressForUser(userId, selectedWeek);
 
   const readingData = [
     { name: "Week 1", completed: 1, pending: 0 },
@@ -313,6 +322,93 @@ export function MemberDashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Weekly Progress Viewer */}
+      <Card className="border-green-200">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Weekly Progress History</CardTitle>
+              <CardDescription>View your progress for past weeks</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedWeek(Math.max(1, selectedWeek - 1))}
+                disabled={selectedWeek === 1}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm font-medium px-3">Week {selectedWeek}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedWeek(Math.min(4, selectedWeek + 1))}
+                disabled={selectedWeek === 4}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-muted/50 rounded-lg border border-green-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  <p className="text-sm font-medium">Reading</p>
+                </div>
+                {weekProgress.readingCompleted ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {weekProgress.readingCompleted ? "Completed" : "Not completed"}
+              </p>
+            </div>
+
+            <div className="p-4 bg-muted/50 rounded-lg border border-green-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Mic className="w-5 h-5 text-primary" />
+                  <p className="text-sm font-medium">Voice Recording</p>
+                </div>
+                {weekProgress.voiceRecorded ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {weekProgress.voiceRecorded ? "Recorded" : "Not recorded"}
+              </p>
+            </div>
+
+            <div className="p-4 bg-muted/50 rounded-lg border border-green-100">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-primary" />
+                  <p className="text-sm font-medium">Quiz</p>
+                </div>
+                {weekProgress.quizCompleted ? (
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {weekProgress.quizCompleted 
+                  ? `Score: ${weekProgress.quizScore}%` 
+                  : "Not completed"}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

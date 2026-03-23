@@ -59,7 +59,9 @@ export function AdminControls() {
           <Card className="border-green-200">
             <CardHeader>
               <CardTitle>Schedule Bible Reading</CardTitle>
-              <CardDescription>Assign weekly Bible chapters for members to read</CardDescription>
+              <CardDescription>
+                Assign weekly Bible chapters for all families. Readings are shared across all 5 families.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,7 +130,9 @@ export function AdminControls() {
           <Card className="border-green-200">
             <CardHeader>
               <CardTitle>Create New Quiz</CardTitle>
-              <CardDescription>Add quizzes for weekly Bible readings</CardDescription>
+              <CardDescription>
+                Add quizzes for weekly Bible readings. Quizzes are shared across all 5 families.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

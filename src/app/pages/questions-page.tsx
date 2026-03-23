@@ -111,7 +111,7 @@ export function QuestionsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm">{question.userName}</p>
+                        <p className="font-medium text-sm">{isAdmin ? "Anonymous Member" : question.userName}</p>
                         <Badge variant="outline" className={question.answer ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200"}>
                           {question.answer ? (
                             <><CheckCircle className="w-3 h-3 mr-1" /> Answered</>

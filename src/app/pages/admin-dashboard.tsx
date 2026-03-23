@@ -13,7 +13,7 @@ import {
   UserCheck,
   Settings
 } from "lucide-react";
-import { dailyVerse, mockUsers, mockBibleReadings, mockQuizzes, mockEvents, mockQuestions, getStatistics } from "../lib/mock-data";
+import { dailyVerse, mockUsers, mockBibleReadings, mockQuizzes, mockEvents, mockQuestions, getStatistics, getFamilies } from "../lib/mock-data";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 import { useNavigate } from "react-router";
 
@@ -28,9 +28,26 @@ export function AdminDashboard() {
   const pendingQuestions = mockQuestions.filter(q => !q.answer).length;
 
   // Family-based statistics
-  const familyStats = [
-    { family: "Family 1", members: 1, avgQuiz: 85, attendance: 75, readings: 2 },
-  ];
+  const familyStats = getFamilies();
+
+  const getFamilyStats = (familyId: string) => {
+    const familyMembers = mockUsers.filter(u => u.familyId === familyId);
+    const memberCount = familyMembers.filter(u => u.role === "member").length;
+    
+    // Simulated stats - in real app, would calculate from actual data
+    const avgQuizScores = [85, 78, 92, 88, 81];
+    const attendanceRates = [75, 82, 90, 78, 85];
+    const completedReadings = [2, 3, 2, 1, 2];
+    
+    const familyIndex = parseInt(familyId.replace('fam', '')) - 1;
+    
+    return {
+      members: memberCount,
+      avgQuiz: avgQuizScores[familyIndex] || 80,
+      attendance: attendanceRates[familyIndex] || 80,
+      readings: completedReadings[familyIndex] || 2
+    };
+  };
 
   // Weekly activity trend
   const weeklyActivity = [
@@ -197,42 +214,45 @@ export function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {familyStats.map((family, index) => (
-              <div key={index} className="p-4 bg-muted/50 rounded-lg border border-green-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h4 className="font-medium">{family.family}</h4>
-                    <p className="text-sm text-muted-foreground">{family.members} members</p>
+            {familyStats.map((family, index) => {
+              const familyStat = getFamilyStats(family.id);
+              return (
+                <div key={index} className="p-4 bg-muted/50 rounded-lg border border-green-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-medium">{family.family}</h4>
+                      <p className="text-sm text-muted-foreground">{familyStat.members} members</p>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      View Details
+                    </Button>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View Details
-                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Avg Quiz Score</p>
+                      <div className="flex items-center gap-2">
+                        <Progress value={familyStat.avgQuiz} className="flex-1" />
+                        <span className="text-sm font-medium">{familyStat.avgQuiz}%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Attendance Rate</p>
+                      <div className="flex items-center gap-2">
+                        <Progress value={familyStat.attendance} className="flex-1" />
+                        <span className="text-sm font-medium">{familyStat.attendance}%</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Completed Readings</p>
+                      <div className="flex items-center gap-2">
+                        <Progress value={(familyStat.readings / 4) * 100} className="flex-1" />
+                        <span className="text-sm font-medium">{familyStat.readings}/4</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Avg Quiz Score</p>
-                    <div className="flex items-center gap-2">
-                      <Progress value={family.avgQuiz} className="flex-1" />
-                      <span className="text-sm font-medium">{family.avgQuiz}%</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Attendance Rate</p>
-                    <div className="flex items-center gap-2">
-                      <Progress value={family.attendance} className="flex-1" />
-                      <span className="text-sm font-medium">{family.attendance}%</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Completed Readings</p>
-                    <div className="flex items-center gap-2">
-                      <Progress value={(family.readings / 4) * 100} className="flex-1" />
-                      <span className="text-sm font-medium">{family.readings}/4</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

@@ -86,16 +86,16 @@ export function LoginPage() {
             <p className="text-sm text-muted-foreground mb-3">Demo Accounts:</p>
             <div className="space-y-2 text-xs">
               <div className="p-2 bg-muted/50 rounded">
-                <p className="font-medium">Member: member@test.com</p>
+                <p className="font-medium">Member: member1a@test.com</p>
                 <p className="text-muted-foreground">Password: 123456</p>
               </div>
               <div className="p-2 bg-muted/50 rounded">
-                <p className="font-medium">Parent: parent@test.com</p>
+                <p className="font-medium">Parent: mother1@test.com</p>
                 <p className="text-muted-foreground">Password: 123456</p>
               </div>
               <div className="p-2 bg-muted/50 rounded">
-                <p className="font-medium">Admin: admin@test.com</p>
-                <p className="text-muted-foreground">Password: 123456</p>
+                <p className="font-medium">Admin: admin@beteardete.com</p>
+                <p className="text-muted-foreground">Password: admin123</p>
               </div>
             </div>
           </div>
