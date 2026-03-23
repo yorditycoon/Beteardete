@@ -31,20 +31,20 @@ export function MemberDashboard() {
   const weekProgress = getWeeklyProgressForUser(userId, selectedWeek);
 
   const readingData = [
-    { name: "Week 1", completed: 1, pending: 0 },
-    { name: "Week 2", completed: 1, pending: 0 },
-    { name: "Week 3", completed: 0, pending: 1 },
-    { name: "Week 4", completed: 0, pending: 1 },
+    { id: "w1", name: "Week 1", completed: 1, pending: 0 },
+    { id: "w2", name: "Week 2", completed: 1, pending: 0 },
+    { id: "w3", name: "Week 3", completed: 0, pending: 1 },
+    { id: "w4", name: "Week 4", completed: 0, pending: 1 },
   ];
 
   const voiceRecordingData = [
-    { name: "Recorded", value: stats.voiceRecordings },
-    { name: "Not Recorded", value: stats.completedReadings - stats.voiceRecordings },
+    { id: "recorded", name: "Recorded", value: stats.voiceRecordings },
+    { id: "notRecorded", name: "Not Recorded", value: stats.completedReadings - stats.voiceRecordings },
   ];
 
   const attendanceData = [
-    { name: "Attended", value: stats.attendanceRate },
-    { name: "Absent", value: 100 - stats.attendanceRate },
+    { id: "attended", name: "Attended", value: stats.attendanceRate },
+    { id: "absent", name: "Absent", value: 100 - stats.attendanceRate },
   ];
 
   const COLORS = ["#4ade80", "#86efac", "#22c55e", "#16a34a"];

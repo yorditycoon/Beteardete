@@ -16,7 +16,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const foundUser = mockUsers.find(
       (u) => u.email === email && u.password === password
     );
-    if (foundUser) {
+    if (foundUser && foundUser.hasAccess) {
       setUser(foundUser);
       return true;
     }

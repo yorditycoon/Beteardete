@@ -23,14 +23,14 @@ export function FamilyActivities() {
   const stats = getStatistics();
 
   const memberData = [
-    { activity: "Readings", completed: 2, total: 4 },
-    { activity: "Quizzes", completed: 1, total: 2 },
-    { activity: "Recordings", completed: 1, total: 2 },
+    { id: "readings", activity: "Readings", completed: 2, total: 4 },
+    { id: "quizzes", activity: "Quizzes", completed: 1, total: 2 },
+    { id: "recordings", activity: "Recordings", completed: 1, total: 2 },
   ];
 
   const quizResults = [
-    { quiz: "Creation Story", score: 85, date: "2026-03-15" },
-    { quiz: "Noah's Ark", score: 0, date: "Not taken" },
+    { id: "q1", quiz: "Creation Story", score: 85, date: "2026-03-15" },
+    { id: "q2", quiz: "Noah's Ark", score: 0, date: "Not taken" },
   ];
 
   const questions = [

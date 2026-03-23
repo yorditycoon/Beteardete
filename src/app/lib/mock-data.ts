@@ -6,6 +6,17 @@ export interface User {
   role: "member" | "parent" | "admin";
   familyId?: string;
   familyName?: string;
+  hasAccess: boolean; // Whether user has been granted login access
+  createdBy?: string; // ID of admin/parent who created this user
+}
+
+export interface Family {
+  id: string;
+  name: string;
+  parentId?: string; // ID of the father/mother assigned to this family
+  parentName?: string;
+  createdBy: string; // Admin who created this family
+  createdAt: string;
 }
 
 export interface BibleReading {
@@ -70,48 +81,33 @@ export interface WeeklyProgress {
   quizScore?: number;
 }
 
-// Mock users - 5 families with parents and members
+// Mock families - created by admin
+export const mockFamilies: Family[] = [
+  { id: "fam1", name: "Tesfaye Family", parentId: "p1", parentName: "Tsehay Tesfaye", createdBy: "admin1", createdAt: "2026-01-15" },
+  { id: "fam2", name: "Kebede Family", parentId: "p2", parentName: "Meseret Kebede", createdBy: "admin1", createdAt: "2026-01-20" },
+];
+
+// Mock users - Admin creates families and parents, parents create members
 export const mockUsers: User[] = [
   // Admin
-  { id: "admin1", email: "admin@beteardete.com", password: "admin123", name: "Admin User", role: "admin" },
+  { id: "admin1", email: "admin@beteardete.com", password: "admin123", name: "Admin User", role: "admin", hasAccess: true },
   
-  // Family 1 - Tesfaye Family
-  { id: "p1", email: "mother1@test.com", password: "123456", name: "Tsehay Tesfaye", role: "parent", familyId: "fam1", familyName: "Tesfaye Family" },
-  { id: "m1a", email: "member1a@test.com", password: "123456", name: "Dawit Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family" },
-  { id: "m1b", email: "member1b@test.com", password: "123456", name: "Sara Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family" },
-  { id: "m1c", email: "member1c@test.com", password: "123456", name: "Daniel Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family" },
+  // Parents - created by admin
+  { id: "p1", email: "mother1@test.com", password: "123456", name: "Tsehay Tesfaye", role: "parent", familyId: "fam1", familyName: "Tesfaye Family", hasAccess: true, createdBy: "admin1" },
+  { id: "p2", email: "mother2@test.com", password: "123456", name: "Meseret Kebede", role: "parent", familyId: "fam2", familyName: "Kebede Family", hasAccess: true, createdBy: "admin1" },
   
-  // Family 2 - Kebede Family
-  { id: "p2", email: "mother2@test.com", password: "123456", name: "Meseret Kebede", role: "parent", familyId: "fam2", familyName: "Kebede Family" },
-  { id: "m2a", email: "member2a@test.com", password: "123456", name: "Yohannes Kebede", role: "member", familyId: "fam2", familyName: "Kebede Family" },
-  { id: "m2b", email: "member2b@test.com", password: "123456", name: "Ruth Kebede", role: "member", familyId: "fam2", familyName: "Kebede Family" },
+  // Family 1 Members - created by parent p1
+  { id: "m1a", email: "member1a@test.com", password: "123456", name: "Dawit Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family", hasAccess: true, createdBy: "p1" },
+  { id: "m1b", email: "member1b@test.com", password: "123456", name: "Sara Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family", hasAccess: true, createdBy: "p1" },
+  { id: "m1c", email: "member1c@test.com", password: "123456", name: "Daniel Tesfaye", role: "member", familyId: "fam1", familyName: "Tesfaye Family", hasAccess: false, createdBy: "p1" },
   
-  // Family 3 - Assefa Family
-  { id: "p3", email: "father3@test.com", password: "123456", name: "Solomon Assefa", role: "parent", familyId: "fam3", familyName: "Assefa Family" },
-  { id: "m3a", email: "member3a@test.com", password: "123456", name: "Hanna Assefa", role: "member", familyId: "fam3", familyName: "Assefa Family" },
-  { id: "m3b", email: "member3b@test.com", password: "123456", name: "Samuel Assefa", role: "member", familyId: "fam3", familyName: "Assefa Family" },
-  { id: "m3c", email: "member3c@test.com", password: "123456", name: "Marta Assefa", role: "member", familyId: "fam3", familyName: "Assefa Family" },
-  
-  // Family 4 - Haile Family
-  { id: "p4", email: "mother4@test.com", password: "123456", name: "Almaz Haile", role: "parent", familyId: "fam4", familyName: "Haile Family" },
-  { id: "m4a", email: "member4a@test.com", password: "123456", name: "Abenezer Haile", role: "member", familyId: "fam4", familyName: "Haile Family" },
-  { id: "m4b", email: "member4b@test.com", password: "123456", name: "Eden Haile", role: "member", familyId: "fam4", familyName: "Haile Family" },
-  
-  // Family 5 - Bekele Family
-  { id: "p5", email: "father5@test.com", password: "123456", name: "Yosef Bekele", role: "parent", familyId: "fam5", familyName: "Bekele Family" },
-  { id: "m5a", email: "member5a@test.com", password: "123456", name: "Bethlehem Bekele", role: "member", familyId: "fam5", familyName: "Bekele Family" },
-  { id: "m5b", email: "member5b@test.com", password: "123456", name: "Natnael Bekele", role: "member", familyId: "fam5", familyName: "Bekele Family" },
-  { id: "m5c", email: "member5c@test.com", password: "123456", name: "Eyob Bekele", role: "member", familyId: "fam5", familyName: "Bekele Family" },
+  // Family 2 Members - created by parent p2
+  { id: "m2a", email: "member2a@test.com", password: "123456", name: "Yohannes Kebede", role: "member", familyId: "fam2", familyName: "Kebede Family", hasAccess: true, createdBy: "p2" },
+  { id: "m2b", email: "member2b@test.com", password: "123456", name: "Ruth Kebede", role: "member", familyId: "fam2", familyName: "Kebede Family", hasAccess: false, createdBy: "p2" },
 ];
 
 export const getFamilies = () => {
-  return [
-    { id: "fam1", name: "Tesfaye Family" },
-    { id: "fam2", name: "Kebede Family" },
-    { id: "fam3", name: "Assefa Family" },
-    { id: "fam4", name: "Haile Family" },
-    { id: "fam5", name: "Bekele Family" },
-  ];
+  return mockFamilies;
 };
 
 // Daily verse

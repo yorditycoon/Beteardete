@@ -21,7 +21,8 @@ export function ParentDashboard() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
   const familyMembers = mockUsers.filter(u => u.familyId === currentUser.familyId && u.role === "member");
 
-  const familyProgressData = familyMembers.map(member => ({
+  const familyProgressData = familyMembers.map((member, index) => ({
+    id: member.id,
     name: member.name,
     readings: 2,
     quizzes: 1,

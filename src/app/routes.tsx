@@ -12,6 +12,7 @@ import { AdminControls } from "./pages/admin-controls";
 import { QuestionsPage } from "./pages/questions-page";
 import { AttendancePage } from "./pages/attendance-page";
 import { FamilyActivities } from "./pages/family-activities";
+import { FamilyManagement } from "./pages/family-management";
 
 export const router = createBrowserRouter([
   {
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: "quiz", Component: QuizPage },
       { path: "calendar", Component: CalendarPage },
       { path: "members", Component: MembersManagement },
+      { path: "family-management", Component: FamilyManagement },
       { path: "admin-controls", Component: AdminControls },
       { path: "questions", Component: QuestionsPage },
       { path: "attendance", Component: AttendancePage },

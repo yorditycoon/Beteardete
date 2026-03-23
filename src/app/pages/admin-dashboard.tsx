@@ -11,7 +11,8 @@ import {
   MessageSquare,
   TrendingUp,
   UserCheck,
-  Settings
+  Settings,
+  FolderTree
 } from "lucide-react";
 import { dailyVerse, mockUsers, mockBibleReadings, mockQuizzes, mockEvents, mockQuestions, getStatistics, getFamilies } from "../lib/mock-data";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
@@ -28,7 +29,7 @@ export function AdminDashboard() {
   const pendingQuestions = mockQuestions.filter(q => !q.answer).length;
 
   // Family-based statistics
-  const familyStats = getFamilies();
+  const families = getFamilies();
 
   const getFamilyStats = (familyId: string) => {
     const familyMembers = mockUsers.filter(u => u.familyId === familyId);
@@ -51,10 +52,10 @@ export function AdminDashboard() {
 
   // Weekly activity trend
   const weeklyActivity = [
-    { week: "Week 1", readings: 8, quizzes: 6, recordings: 5 },
-    { week: "Week 2", readings: 7, quizzes: 5, recordings: 4 },
-    { week: "Week 3", readings: 3, quizzes: 2, recordings: 2 },
-    { week: "Week 4", readings: 1, quizzes: 0, recordings: 0 },
+    { id: "w1", week: "Week 1", readings: 8, quizzes: 6, recordings: 5 },
+    { id: "w2", week: "Week 2", readings: 7, quizzes: 5, recordings: 4 },
+    { id: "w3", week: "Week 3", readings: 3, quizzes: 2, recordings: 2 },
+    { id: "w4", week: "Week 4", readings: 1, quizzes: 0, recordings: 0 },
   ];
 
   return (
@@ -137,7 +138,22 @@ export function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-green-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/app/family-management")}>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <FolderTree className="w-8 h-8 text-primary" />
+              <h4 className="font-medium">Family Management</h4>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Create families and assign parents
+            </p>
+            <Button variant="outline" className="w-full">
+              Manage Families
+            </Button>
+          </CardContent>
+        </Card>
+
         <Card className="border-green-200 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate("/app/admin-controls")}>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 mb-3">
@@ -214,17 +230,19 @@ export function AdminDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {familyStats.map((family, index) => {
+            {families.map((family, index) => {
               const familyStat = getFamilyStats(family.id);
               return (
-                <div key={index} className="p-4 bg-muted/50 rounded-lg border border-green-100">
+                <div key={family.id} className="p-4 bg-muted/50 rounded-lg border border-green-100">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="font-medium">{family.family}</h4>
-                      <p className="text-sm text-muted-foreground">{familyStat.members} members</p>
+                      <h4 className="font-medium">{family.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {family.parentName ? `Led by ${family.parentName}` : 'No parent assigned'} • {familyStat.members} members
+                      </p>
                     </div>
-                    <Button variant="outline" size="sm">
-                      View Details
+                    <Button variant="outline" size="sm" onClick={() => navigate("/app/family-management")}>
+                      Manage
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,224 +1,260 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Badge } from "../components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { User, UserPlus, Mail, Eye, EyeOff } from "lucide-react";
-import { mockUsers } from "../lib/mock-data";
-import { toast } from "sonner";
+import { Plus, Users, Mail, Eye, EyeOff, Key, Trash2, UserCheck } from "lucide-react";
+import { mockUsers, User } from "../lib/mock-data";
+import { useAuth } from "../lib/auth-context";
 
 export function MembersManagement() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user: currentUser } = useAuth();
+  const [members, setMembers] = useState<User[]>(
+    mockUsers.filter(u => u.familyId === currentUser?.familyId && u.role === "member")
+  );
+  const [showAddMember, setShowAddMember] = useState(false);
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
-    password: "",
+    password: "123456",
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-  const isAdmin = currentUser.role === "admin";
-  
-  // Filter members based on role
-  const displayMembers = isAdmin 
-    ? mockUsers.filter(u => u.role !== "admin")
-    : mockUsers.filter(u => u.familyId === currentUser.familyId && u.role === "member");
-
-  const handleRegisterMember = () => {
-    if (newMember.name && newMember.email && newMember.password) {
-      toast.success(`Member registered successfully!\n\nEmail: ${newMember.email}\nPassword: ${newMember.password}\n\nPlease save these credentials.`);
-      setNewMember({ name: "", email: "", password: "" });
-      setIsDialogOpen(false);
-    } else {
-      toast.error("Please fill in all fields");
+  const handleAddMember = () => {
+    if (!newMember.name.trim() || !newMember.email.trim() || !newMember.password.trim()) {
+      alert("Please fill in all fields");
+      return;
     }
+
+    const member: User = {
+      id: `m${Date.now()}`,
+      email: newMember.email,
+      password: newMember.password,
+      name: newMember.name,
+      role: "member",
+      familyId: currentUser?.familyId,
+      familyName: currentUser?.familyName,
+      hasAccess: false, // Default to no access
+      createdBy: currentUser?.id,
+    };
+
+    setMembers([...members, member]);
+    setNewMember({ name: "", email: "", password: "123456" });
+    setShowAddMember(false);
+  };
+
+  const handleToggleAccess = (memberId: string) => {
+    setMembers(members.map(m => {
+      if (m.id === memberId) {
+        return { ...m, hasAccess: !m.hasAccess };
+      }
+      return m;
+    }));
+  };
+
+  const handleDeleteMember = (memberId: string) => {
+    if (!confirm("Are you sure you want to delete this member?")) return;
+    setMembers(members.filter(m => m.id !== memberId));
   };
 
   const generatePassword = () => {
     const password = Math.random().toString(36).slice(-8);
     setNewMember({ ...newMember, password });
-    toast.success("Password generated!");
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-green-100 to-green-50 rounded-lg p-6 border border-green-200">
-        <h2 className="text-2xl mb-2">Members Management</h2>
-        <p className="text-muted-foreground">
-          {isAdmin ? "Manage all church members" : "Manage your family members"}
-        </p>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Family Members</h1>
+          <p className="text-gray-600 mt-1">
+            Manage members of {currentUser?.familyName}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowAddMember(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-[#90EE90] text-gray-900 rounded-lg hover:bg-green-400"
+        >
+          <Plus className="w-4 h-4" />
+          Add Member
+        </button>
       </div>
 
-      {/* Register New Member */}
-      <Card className="border-green-200">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Register New Member</CardTitle>
-              <CardDescription>
-                Add a new member and provide them with login credentials
-              </CardDescription>
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  Register Member
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Register New Member</DialogTitle>
-                  <DialogDescription>
-                    Fill in the details to create a new member account
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="Enter member's name"
-                      value={newMember.name}
-                      onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="member@example.com"
-                      value={newMember.email}
-                      onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <Input
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter password"
-                          value={newMember.password}
-                          onChange={(e) => setNewMember({ ...newMember, password: e.target.value })}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                      <Button type="button" variant="outline" onClick={generatePassword}>
-                        Generate
-                      </Button>
-                    </div>
-                  </div>
-                  {newMember.password && (
-                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-sm text-amber-800">
-                        <strong>Important:</strong> Please save these credentials and share them securely with the member.
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleRegisterMember}>
-                    Register Member
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Members List */}
-      <Card className="border-green-200">
-        <CardHeader>
-          <CardTitle>Registered Members</CardTitle>
-          <CardDescription>
-            {displayMembers.length} member{displayMembers.length !== 1 ? "s" : ""} registered
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {displayMembers.length === 0 ? (
-            <div className="text-center py-12">
-              <User className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-xl font-medium mb-2">No Members Yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Register your first member to get started
-              </p>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Register First Member
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {displayMembers.map((member) => (
-                <Card key={member.id} className="border-green-100">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <User className="w-6 h-6 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate">{member.name}</h4>
-                        <Badge variant="outline" className="mt-1 capitalize text-xs">
-                          {member.role}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="w-4 h-4" />
-                        <span className="truncate">{member.email}</span>
-                      </div>
-                    </div>
+      {members.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <Users className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <h3 className="text-xl font-medium mb-2 text-gray-900">No Members Yet</h3>
+          <p className="text-gray-600 mb-6">
+            Add your first family member to get started
+          </p>
+          <button
+            onClick={() => setShowAddMember(true)}
+            className="px-4 py-2 bg-[#90EE90] text-gray-900 rounded-lg hover:bg-green-400"
+          >
+            Add First Member
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {members.map((member) => (
+            <div
+              key={member.id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#90EE90] flex items-center justify-center">
+                    <Users className="w-6 h-6 text-gray-700" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{member.name}</h3>
+                    <p className="text-sm text-gray-500">{member.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDeleteMember(member.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
 
-                    <div className="mt-4 pt-4 border-t border-green-100 flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        View Details
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
-                        Edit
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              {/* Access Status */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <span className="text-sm text-gray-600">Login Access</span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      member.hasAccess
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    {member.hasAccess ? "Granted" : "Not Granted"}
+                  </span>
+                </div>
 
-      {/* Information Card */}
-      <Card className="border-green-200 bg-blue-50/50">
-        <CardHeader>
-          <CardTitle className="text-base">Member Access Information</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm space-y-2">
-          <p>
-            <strong>For Parents/Mothers:</strong> You can register members of your family and provide them with login credentials.
-          </p>
-          <p>
-            <strong>For Admin:</strong> You can view all members and parents, and grant access to Fathers and Mothers roles.
-          </p>
-          <p className="text-muted-foreground mt-3">
-            Note: Always share login credentials securely and encourage members to change their passwords after first login.
-          </p>
-        </CardContent>
-      </Card>
+                <button
+                  onClick={() => handleToggleAccess(member.id)}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    member.hasAccess
+                      ? "bg-red-50 text-red-700 hover:bg-red-100"
+                      : "bg-green-50 text-green-700 hover:bg-green-100"
+                  }`}
+                >
+                  <UserCheck className="w-4 h-4" />
+                  {member.hasAccess ? "Revoke Access" : "Grant Access"}
+                </button>
+              </div>
+
+              {/* Credentials Info */}
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  <strong>Password:</strong> {member.password}
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  Share credentials securely with the member
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add Member Modal */}
+      {showAddMember && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Add Family Member</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={newMember.name}
+                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                  placeholder="e.g., John Smith"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#90EE90]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={newMember.email}
+                  onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+                  placeholder="member@example.com"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#90EE90]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={newMember.password}
+                      onChange={(e) => setNewMember({ ...newMember, password: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#90EE90]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={generatePassword}
+                    className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm text-amber-800">
+                  <strong>Note:</strong> Member won't be able to login until you grant access.
+                </p>
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowAddMember(false);
+                    setNewMember({ name: "", email: "", password: "123456" });
+                  }}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddMember}
+                  className="px-4 py-2 bg-[#90EE90] text-gray-900 rounded-lg hover:bg-green-400"
+                >
+                  Add Member
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Info Card */}
+      <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
+        <h3 className="font-semibold text-blue-900 mb-2">Member Management Guide</h3>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• Add family members and create their login credentials</li>
+          <li>• Grant or revoke login access as needed</li>
+          <li>• Share credentials securely with each member</li>
+          <li>• Members can participate in Bible readings, quizzes, and events</li>
+        </ul>
+      </div>
     </div>
   );
 }

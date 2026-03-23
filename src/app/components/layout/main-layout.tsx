@@ -13,7 +13,8 @@ import {
   LogOut,
   CheckSquare,
   ClipboardList,
-  UserCheck
+  UserCheck,
+  FolderTree
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -45,6 +46,12 @@ export function MainLayout() {
       icon: Home, 
       label: "Dashboard",
       roles: ["member", "parent", "admin"]
+    },
+    { 
+      path: "/app/family-management", 
+      icon: FolderTree, 
+      label: "Family Management",
+      roles: ["admin"]
     },
     { 
       path: "/app/bible", 
@@ -79,8 +86,8 @@ export function MainLayout() {
     { 
       path: "/app/members", 
       icon: Users, 
-      label: "Members",
-      roles: ["parent", "admin"]
+      label: "Family Members",
+      roles: ["parent"]
     },
     { 
       path: "/app/attendance", 
